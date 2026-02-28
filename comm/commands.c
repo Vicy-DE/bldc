@@ -57,6 +57,7 @@
 #include "main.h"
 #include "conf_custom.h"
 #include "comm_usb.h"
+#include "vesc_fw_update.h"
 
 #include <math.h>
 #include <string.h>
@@ -126,6 +127,11 @@ void commands_send_packet(unsigned char *data, unsigned int len) {
  * The data length.
  */
 void commands_send_packet_can_last(unsigned char *data, unsigned int len) {
+	/* Check if a firmware update is waiting for this response. */
+	if (vesc_fw_update_try_capture_response(data, len)) {
+		return;
+	}
+
 	if (send_func_can_fwd) {
 		send_func_can_fwd(data, len);
 	}
